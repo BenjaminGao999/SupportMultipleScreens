@@ -1,0 +1,44 @@
+① 基准720*1280 320dpi
+ 18sp 18*2=36px
+ 36/720 = 5%
+
+② 区分phone和tablet
+  分辨率相近，tablet尺寸较大，分辨率较低
+  why?tablet分辨率这么低呢？
+
+③ 百分比？还是物理尺寸一致？依据Android官方文档
+
+->密度独立性
+应用显示在密度不同的屏幕上时，如果它保持用户界面元素的物理尺寸（从 用户的视角），便可实现“密度独立性” 。
+
+->Android是怎么处理位图的？
+drawable-xhdpi/sophie.gif
+
+    /**
+     * ①1080*1920 420dpi
+     * 04-07 08:55:16.083 7144-7144/com.gaos.supportmultiplescreens I/MainActivity: getImageSize: height = 257
+     * 04-07 08:55:16.083 7144-7144/com.gaos.supportmultiplescreens I/MainActivity: getImageSize: width = 168
+     * <p>
+     * ②768*1280 xhdpi
+     * 04-07 08:59:59.580 2721-2721/? I/MainActivity: getImageSize: height = 171
+     * 04-07 08:59:59.580 2721-2721/? I/MainActivity: getImageSize: width = 112
+     * <p>
+     * ③ 原始位图尺寸 height = 171 , weight = 112
+     */
+    private void getImageSize() {
+        ImageView imageView = (ImageView) findViewById(R.id.img_sophie);
+        imageView.measure(0, 0);
+        int height = imageView.getMeasuredHeight();
+        int width = imageView.getMeasuredWidth();
+        Log.i(TAG, "getImageSize: height = " + height);
+        Log.i(TAG, "getImageSize: width = " + width);
+    }
+
+https://developer.android.google.cn/guide/practices/screens_support.html#DensityConsiderations
+->其他密度注意事项：
+预缩放：（普通图片资源和launcher icon）
+根据当前屏幕的密度，系统将使用您的应用中提供的任何尺寸或 密度特定资源，并且不加缩放而显示它们。
+如果没有可用于正确密度 的资源，系统将加载默认资源，并按需要向上或向下扩展，以 匹配当前屏幕的密度。
+系统假设默认资源（ 没有配置限定符的目录中的资源）针对基线屏幕密度 (mdpi) 而设计， 除非它们加载自密度特定的资源目录。
+因此，系统 会执行预缩放，以将位图调整至适应当前屏幕 密度的大小。
+
