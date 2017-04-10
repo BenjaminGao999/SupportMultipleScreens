@@ -1,0 +1,119 @@
+① 基准720*1280 320dpi
+ 18sp 18*2=36px
+ 36/720 = 5%
+
+② 区分phone和tablet
+  分辨率相近，tablet尺寸较大，分辨率较低
+  why?tablet分辨率这么低呢？
+      我的开发电脑分辨率1920*1080,屏幕尺寸达到24.9英寸。
+
+  ->针对handsets和tablets区别适配
+
+
+③ 百分比？还是物理尺寸一致？依据Android官方文档
+百分比列举法劣势：
+->带有底部导航栏的机型怎么办？（涉及到密度、分辨率，你难道还要一个个配吗？）
+  所以说将高度也拉进屏幕适配，很不合理；通常应该以宽度作为考虑依据。
+
+  适配时，我不能盲目的适配，对着一面模糊不清的需求瞎搞。
+  UI你必须告诉：你要适配哪些机型（handsets还是tablets,屏幕尺寸几何？密度几何？分辨率几何？这些你都必须告诉我，不然连个明确的需求都没有，你让我咋干活？）
+
+
+->密度独立性
+应用显示在密度不同的屏幕上时，如果它保持用户界面元素的物理尺寸（从 用户的视角），便可实现“密度独立性” 。
+
+④ ->Android是怎么处理位图的？
+drawable-xhdpi/sophie.gif
+
+    /**
+     * ①1080*1920 420dpi
+     * 04-07 08:55:16.083 7144-7144/com.gaos.supportmultiplescreens I/MainActivity: getImageSize: height = 257
+     * 04-07 08:55:16.083 7144-7144/com.gaos.supportmultiplescreens I/MainActivity: getImageSize: width = 168
+     * <p>
+     * ②768*1280 xhdpi
+     * 04-07 08:59:59.580 2721-2721/? I/MainActivity: getImageSize: height = 171
+     * 04-07 08:59:59.580 2721-2721/? I/MainActivity: getImageSize: width = 112
+     * <p>
+     * ③ 原始位图尺寸 height = 171 , weight = 112
+     */
+    private void getImageSize() {
+        ImageView imageView = (ImageView) findViewById(R.id.img_sophie);
+        imageView.measure(0, 0);
+        int height = imageView.getMeasuredHeight();
+        int width = imageView.getMeasuredWidth();
+        Log.i(TAG, "getImageSize: height = " + height);
+        Log.i(TAG, "getImageSize: width = " + width);
+    }
+
+https://developer.android.google.cn/guide/practices/screens_support.html#DensityConsiderations
+->其他密度注意事项：
+预缩放：（普通图片资源和launcher icon）
+根据当前屏幕的密度，系统将使用您的应用中提供的任何尺寸或 密度特定资源，并且不加缩放而显示它们。
+如果没有可用于正确密度 的资源，系统将加载默认资源，并按需要向上或向下扩展，以 匹配当前屏幕的密度。
+系统假设默认资源（ 没有配置限定符的目录中的资源）针对基线屏幕密度 (mdpi) 而设计， 除非它们加载自密度特定的资源目录。
+因此，系统 会执行预缩放，以将位图调整至适应当前屏幕 密度的大小。
+
+⑤ DisplayMetrix解读
+
+DisplayMetrix.density
+ This value does not exactly follow the real screen size (as given by xdpi and ydpi,
+  but rather is used to scale the size of the overall UI in steps based on gross changes in the display dpi.
+  For example, a 240x320 screen will have a density of 1 even if its width is 1.8", 1.3", etc.
+  However, if the screen resolution is increased to 320x480 but the screen size remained 1.5"x2" then the density would be increased (probably to 1.5).
+
+DisplayMetrix.xdpi
+float xdpi
+The exact physical pixels per inch of the screen in the X dimension.
+
+DisplayMetrix.ydpi
+float ydpi
+The exact physical pixels per inch of the screen in the Y dimension.
+
+⑥ Android 对密度的处理
+对于两台报告 hdpi 屏幕密度的设备，其实际像素密度可能略有不同。
+ Android 将这些差异抽象概括到应用，使您可以提供为通用尺寸和密度设计的 UI，让系统按需要处理任何最终调整。
+
+  ⑦ Android 对尺寸的处理
+ 每种通用的屏幕尺寸都关联了系统定义的最低 分辨率。
+
+⑧ how to prevent system font-size changing effects to android application? 将sp替换为dp
+http://stackoverflow.com/questions/21546805/how-to-prevent-system-font-size-changing-effects-to-android-application
+
+⑨ 以sp|dp为单位，物理尺寸差异也可以很明显，为啥呢？
+
+    对于两台报告 hdpi 屏幕密度的设备，其实际像素密度可能略有不同。
+    DisplayMetrix.density
+     For example, a 240x320 screen will have a density of 1 even if its width is 1.8", 1.3", etc.
+     240*320 1.8" real densityDpi = 133
+     240*320 1.3" real densityDpi = 184
+     而Android 以通用密度 densityDpi = 160 作为1.8"和1.3" 缩放的依据
+     举例说明：
+     对10dp 在1.8"和1.3"上Android都将转化为10px，10px显示在1.8" real densityDpi = 133和1.3" real densityDpi = 184 上物理尺寸差异还是明显的。
+
+     这也解释了以sp和dp为单位的文字|长度 物理尺寸只能近似维持，而不存在绝对的相等。
+
+ 十、 针对单行文本较长的情况，尝试采用①，效果真的不错。
+      ① 基准720*1280 320dpi
+       18sp 18*2=36px
+       36/720 = 5%
+
+      测试样本：
+      1080*1920 5.2"
+      1080*1920 4.95"
+      720*1280 4.65"
+      1440*2560 5.96"
+      以上四个样本效果完全一致
+
+      480*800 3.7"  换行了一个字。需单独适配。该机型濒临淘汰，要求不高的可以不考虑适配。
+
+十一、行高，行宽，UI设计中，这是绝对不能写死的，标注内容，然后指定内容和边框的margin|padding,
+        绝对不应该也不能单纯的指定行高，要相对的标注，行高是相对的，内容和边框的距离都是相对的
+       UI一定要以一种相对的思维，进行标注。
+
+
+
+
+
+
+
+

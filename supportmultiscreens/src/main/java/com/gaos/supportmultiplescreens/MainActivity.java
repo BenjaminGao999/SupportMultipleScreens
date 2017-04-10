@@ -1,5 +1,6 @@
 package com.gaos.supportmultiplescreens;
 
+import android.content.res.Configuration;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -17,23 +18,24 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setTextSize();
-        getImageSize();
+//        getImageSize();
     }
 
 
     private void setTextSize() {
-//        TextView textView = (TextView) findViewById(R.id.tv);
-//        float textSize = getResources().getDisplayMetrics().widthPixels * 0.05f;
-//        Log.i(TAG, "setTextSize: textsize = " + textSize);
-//        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
-        Log.i(TAG, "setTextSize: 18sp = " + getResources().getDimension(R.dimen.textsize) + "px");
+        TextView textView = (TextView) findViewById(R.id.tv);
+        float textSize = getResources().getDisplayMetrics().widthPixels * 0.05f;
+        Log.i(TAG, "setTextSize: textsize = " + textSize);
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
+//        Log.i(TAG, "setTextSize: 18sp = " + getResources().getDimension(R.dimen.textsize) + "px");
 
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         Log.i(TAG, "setTextSize: width = " + displayMetrics.widthPixels + "px");
         Log.i(TAG, "setTextSize: height = " + displayMetrics.heightPixels + "px");
         Log.i(TAG, "setTextSize: densitydpi = " + displayMetrics.densityDpi);
         Log.i(TAG, "setTextSize: density = " + displayMetrics.density);
-        Log.i(TAG, "setTextSize: real density dpi = " + Math.sqrt(Math.pow(displayMetrics.heightPixels, 2) + Math.pow(displayMetrics.heightPixels, 2)) / 7.0f);
+        Log.i(TAG, "setTextSize: xdpi = " + displayMetrics.xdpi);
+        Log.i(TAG, "setTextSize: ydpi = " + displayMetrics.ydpi);
     }
 
     /**
