@@ -1,6 +1,6 @@
 ① 基准720*1280 320dpi
- 18sp 18*2=36px
- 36/720 = 5%
+   18sp 18*2=36px
+   36/720 = 5%
 
 ② 区分phone和tablet
   分辨率相近，tablet尺寸较大，分辨率较低
@@ -52,6 +52,8 @@ https://developer.android.google.cn/guide/practices/screens_support.html#Density
 如果没有可用于正确密度 的资源，系统将加载默认资源，并按需要向上或向下扩展，以 匹配当前屏幕的密度。
 系统假设默认资源（ 没有配置限定符的目录中的资源）针对基线屏幕密度 (mdpi) 而设计， 除非它们加载自密度特定的资源目录。
 因此，系统 会执行预缩放，以将位图调整至适应当前屏幕 密度的大小。
+
+----->图片的缩放也是遵循DisplayMetrix.density的。和文字、长度一样。
 
 ⑤ DisplayMetrix解读
 
@@ -109,6 +111,120 @@ http://stackoverflow.com/questions/21546805/how-to-prevent-system-font-size-chan
 十一、行高，行宽，UI设计中，这是绝对不能写死的，标注内容，然后指定内容和边框的margin|padding,
         绝对不应该也不能单纯的指定行高，要相对的标注，行高是相对的，内容和边框的距离都是相对的
        UI一定要以一种相对的思维，进行标注。
+
+
+十一、
+1、在一行展示文字，以sp、dp为单位，分别运行在4.95"（720*1280|320dpi）和5.2"（1080*1920|420dpi），
+            虽然在4.95"占满宽度，但在5.2"上并不能占满宽度，会留有0.32"（2.57"-2.25"）
+        ① 如何解释呢？
+             文字尺寸大小维持不变，整个屏幕宽度尺寸加大了，当然会在大屏上空余空间
+        ② 启示呢？
+                在UI设计要求单行显示文字，最好在小屏（尺寸小）上设计，字体尺寸维持一致，大屏上只会空余出空间
+2、文字虚高
+
+② 一般来说，文字的大小指的是文字的高度，10px大小的文字其高度理应为10px，但是呢，文字存在虚高，导致呢，真正的字体大小并没有10px高。
+    但是虚高也是存在的，虽然呢，看不见，但确实占位。文字虚高加上看到字体的真实高度，可能会超出10px
+
+十二、休想我给你一套拿来就可以用的适配方案，道理告诉你了，自己琢磨
+
+十三、Android system 密度（dpi）划分细腻度
+      ① 我的发现  320dpi 420dpi 480dpi 560dpi 640dpi
+
+      ② DispalyMetrics 密度划分细腻度
+
+      int	DENSITY_260
+      Intermediate density for screens that sit between DENSITY_HIGH (240dpi) and DENSITY_XHIGH (320dpi).
+      int	DENSITY_280
+      Intermediate density for screens that sit between DENSITY_HIGH (240dpi) and DENSITY_XHIGH (320dpi).
+      int	DENSITY_300
+      Intermediate density for screens that sit between DENSITY_HIGH (240dpi) and DENSITY_XHIGH (320dpi).
+      int	DENSITY_340
+      Intermediate density for screens that sit somewhere between DENSITY_XHIGH (320 dpi) and DENSITY_XXHIGH (480 dpi).
+      int	DENSITY_360
+      Intermediate density for screens that sit somewhere between DENSITY_XHIGH (320 dpi) and DENSITY_XXHIGH (480 dpi).
+      int	DENSITY_400
+      Intermediate density for screens that sit somewhere between DENSITY_XHIGH (320 dpi) and DENSITY_XXHIGH (480 dpi).
+      int	DENSITY_420
+      Intermediate density for screens that sit somewhere between DENSITY_XHIGH (320 dpi) and DENSITY_XXHIGH (480 dpi).
+      int	DENSITY_560
+      Intermediate density for screens that sit somewhere between DENSITY_XXHIGH (480 dpi) and DENSITY_XXXHIGH (640 dpi).
+      int	DENSITY_DEFAULT  160dpi
+      The reference density used throughout the system.
+      int	DENSITY_HIGH 240dpi
+      Standard quantized DPI for high-density screens.
+      int	DENSITY_LOW 120dpi
+      Standard quantized DPI for low-density screens.
+      int	DENSITY_MEDIUM 160dpi
+      Standard quantized DPI for medium-density screens.
+      int	DENSITY_TV 213dpi
+      This is a secondary density, added for some common screen configurations.
+      int	DENSITY_XHIGH 320dpi
+      Standard quantized DPI for extra-high-density screens.
+      int	DENSITY_XXHIGH 480dpi
+      Standard quantized DPI for extra-extra-high-density screens.
+      int	DENSITY_XXXHIGH 640dpi
+      Standard quantized DPI for extra-extra-extra-high-density screens.
+
+      判决规则：依据当前real densityDpi 落在的密度区间，取密度区间的上限值。
+
+十四、如何在运行时获取当前屏幕的dpi?
+        http://stackoverflow.com/questions/3166501/getting-the-screen-density-programmatically-in-android
+
+        ① 	Many answers refer to getDisplayMetrics().xdpi, which is supposed to return the real dpi of the device.
+              Please note that this value is not consistently set correctly across devices by the manufacturers,
+              so you just can't use them. Sad but true: the information about real dpi is not available.
+
+        ② You can get info on the display from the DisplayMetrics struct:
+                 DisplayMetrics metrics = getResources().getDisplayMetrics();
+                 Though Android doesn't use a direct pixel mapping, it uses a handful of quantized Density Independent Pixel values then scales to the actual screen size.
+                 Android不会直接使用px作为单位，使用dp做单位，然后缩放到真实屏幕对应的px
+                 So the metrics.densityDpi property will be one of the DENSITY_??? constants (120, 160, 213, 240, 320, 480 or 640 dpi).
+                 If you need the actual lcd pixel density (perhaps for an OpenGL app) you can get it from the metrics.xdpi and metrics.ydpi properties for horizontal and vertical density respectively.
+                 If you are targeting API Levels earlier than 4. The metrics.density property is a floating point scaling factor from the reference density (160dpi). The same value now provided by metrics.densityDpi can be calculated
+                 int densityDpi = (int)(metrics.density * 160f);
+
+        ③  getWindowManager().getDefaultDisplay().getRealMetrics(metric‌​s);唯一的作用就是拿到带navigator的全部高度。还要求api至少为level17
+
+                 You may want this newer API instead:
+                 This was officially added in API 17, but I was surprised to find that it worked correctly even on a 4.0 device I tried.
+
+                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                             DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+                             getWindowManager().getDefaultDisplay().getRealMetrics(displayMetrics);
+                             Log.i(TAG, "getRealDpi: realdpi = " + displayMetrics.densityDpi);
+                             Point outSize = new Point();
+                             getWindowManager().getDefaultDisplay().getRealSize(outSize);
+                             Log.i(TAG, "getRealDpi: outSizeX = " + outSize.x + "; outsizeY = " + outSize.y);
+                         }
+                  04-11 03:08:21.693 11174-11174/com.gaos.supportmultiplescreens I/MainActivity: getRealDpi: realdpi = 560
+                  04-11 03:08:21.693 11174-11174/com.gaos.supportmultiplescreens I/MainActivity: getRealDpi: outSizeX = 1440; outsizeY = 2560
+
+               void 	getRealMetrics(DisplayMetrics outMetrics)
+                      Gets display metrics based on the real size of this display.
+                       所谓的realDpi 根本就是和 DisplayMetrix的densityDpi一样。
+               void 	getRealSize(Point outSize)
+                       Gets the real size of the display without subtracting any window decor or applying any compatibility scale factors.
+                       能够拿到整个屏幕的高度（包括navigator）,其他的和DispalyMetrics一样。
+
+
+十五、UI作图的依据是分辨率和密度dpi
+      ① 位图放在drawable-???dpi下，在???dpi下原图展示即可，在其他dpi下通过对图片缩放维持图片展示尺寸和???dpi下的一致。
+        在 real densityDpi 和 displayMetrics.densityDpi 相等或差异极小的情况下，能够维持位图尺寸的绝对相等；
+        在差异较大的情况下，位图的显示尺寸为略有增大，举例说明：
+        Mi4，real densityDpi = 441dpi,落在密度组的420dpi-480dpi，Android 运行时取上限值 480dpi,
+        对于宽高为 112*171 的一张位图，其存放于drawable-xhdpi目录下，
+        运行时，densityDpi = 480dpi， 480dpi/320dpi = 1.5, 168px = 112px*1.5;
+        real densityDpi = 441dpi, 441dpi/320dpi = 1.378, 154px = 112px*1.378;
+        11px = 168px - 154px;比理想的多了11px,图片显示尺寸宽度多了11px，占比屏幕1%
+
+      ② 不光位图会有所增大，文字、尺寸也会有所增大，
+
+      ③ 由此，可以得出结论，向高密度拓展时，位图、文字、距离尺寸相比于UI切图目标屏，至少维持原始尺寸，当real densityDpi < runtime densityDpi 时，
+            显示尺寸会响应有所增大。
+
+十六、“ 1dp 可以换算为 1/160 英尺”，这个结论有问题。
+      当real densityDpi = 160dpi|240dpi|320dpi|480dpi|560dpi 标准密度时，1dp 可以换算为 1/160 英尺；否则，这个结论就是不成立的。
+       以这个结论作为屏幕适配的依据的出发点就是错误的。在屏幕适配时，要避免这种错误的思维。
 
 
 

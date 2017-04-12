@@ -11,23 +11,54 @@
         android:id="@+id/tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/textsize"
-        android:text="测试测试测试测试测试测试测试测试测试测"
-        android:textSize="@dimen/textsize" />
+        android:text="测试测试测试测试测试测试测试测试测试测" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/textsize"
         android:text="测试测试测试测试测试测试测试测试测试测"
-        android:textSize="18dp" />
+        android:textSize="@dimen/textsize" />
 
-    <ImageView
-        android:id="@+id/img_sophie"
+    <View
+        android:layout_width="@dimen/view_width_my"
+        android:layout_height="100dp"
+        android:background="@color/colorPrimary" />
+
+    <View
+        android:id="@+id/view_my"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/colorAccent"
-        android:src="@drawable/sophie" />
+        android:layout_height="100dp"
+        android:background="@color/colorAccent" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/sophieb" />
+
+        <ImageView
+            android:id="@+id/iv_sophie"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/sophie" />
+
+        <TextView
+            android:id="@+id/tv_sophie"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:background="@color/colorPrimary"
+            android:text="点赞"
+            android:textSize="65dp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="1dp"
+        android:background="@color/colorAccent" />
 </LinearLayout>
 
